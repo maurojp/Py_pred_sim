@@ -33,7 +33,6 @@ def simulator(thread_name, console_lock):
 def predictor(thread_name, console_lock, loaded_model):
     pred_counter = 0
     serie = np.empty((1, 4))
-    # fig = plt.figure()
     while (pred_counter < 150):
         if q.qsize() > 0: # Hay datos en el repositorio
             b = q.get()
@@ -48,6 +47,8 @@ def predictor(thread_name, console_lock, loaded_model):
                     serie = np.append(serie, np.array([b]), axis=0)
                 # Grafica de la serie acumulada
                 plt.plot(serie)
+                # Plot de la salida normalizada a la cota máxima de temperaturas para mejor visualización
+                plt.plot([h * 30 for h in history])
                 plt.show()
 
                 # Predicción
@@ -63,6 +64,7 @@ def predictor(thread_name, console_lock, loaded_model):
 
                 else:
                     print("No hay suficientes datos para realizar una predicción.")
+                    history.append(2)
                 pred_counter += 1
         else:
             time.sleep(1)

@@ -34,7 +34,6 @@ def simulator(thread_name, console_lock):
 def predictor(thread_name, console_lock, loaded_model):
     pred_counter = 0
     serie = np.empty((1, 4))
-    # fig = plt.figure()
     while (pred_counter < 912):
         if q.qsize() > 0:
             b = q.get()
