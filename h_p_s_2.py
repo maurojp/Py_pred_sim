@@ -10,7 +10,7 @@ from tensorflow.keras.models import model_from_json
 # Lista para guardar las predicciones
 history = []
 
-# Parametros de normalización para conjunto TS1-4_COOLER
+# Parámetros de normalización para conjunto de datos de la industria
 T_C_0_num = -2304.11053494
 T_C_0_den = 7393.278659940001
 
@@ -18,7 +18,7 @@ T_C_0_den = 7393.278659940001
 def normalize(x):
   return (x - T_C_0_num) / T_C_0_den
 
-# Logica del proceso Simulador
+# Lógica del proceso Simulador
 def simulator(thread_name, console_lock):
     for i in range(len(sds)):
         # Pausa de un segundo entre entregas de datos
@@ -30,7 +30,7 @@ def simulator(thread_name, console_lock):
             print("Lecturas enviadas: ", sds[i])
 
 
-# Logica del proceso predictor
+# Lógica del proceso predictor
 def predictor(thread_name, console_lock, loaded_model):
     pred_counter = 0
     serie = np.empty((1, 4))
@@ -39,14 +39,14 @@ def predictor(thread_name, console_lock, loaded_model):
             b = q.get()
             with console_lock:
                 print("Proceso Predictor - Proc.Nro. " + str(threading.get_ident()))
-                print("Prediccion Nro.: ", pred_counter, " - Datos Recibidos: ", b)
+                print("Predicción Nro.: ", pred_counter, " - Datos Recibidos: ", b)
                 print("Objetos restantes en la cola: " + str(q.qsize()))
                 # Preparado de la Serie
                 if pred_counter == 0:
                     serie = np.array([b])
                 else:
                     serie = np.append(serie, np.array([b]), axis=0)
-                # Grafica de la serie acumulada (Comentado por memoria)
+                # Gráfica de la serie acumulada (Comentado por memoria)
                 # plt.plot(serie) (Comentado por memoria)
                 # plt.show() (Comentado por memoria)
 
@@ -59,23 +59,23 @@ def predictor(thread_name, console_lock, loaded_model):
                     i_pred_val = np.argmax(pred_val)
                     history.append(i_pred_val)
                     print("Predicción: ", pred_val, "Etiqueta: ", i_pred_val)
-                    print("Estado en 50 segundos: ", text_labels[i_pred_val])
+                    print("Estado en 30 minutos: ", text_labels[i_pred_val])
                 else:
                     print("No hay suficientes datos para realizar una predicción.")
                 pred_counter += 1
         else:
             time.sleep(1)
-    # Guardo en archivo el resultado de las predicciones
+    # Guardado en archivo del resultado de las predicciones
     mat = np.matrix(history)
     with open('resultados_h_p_s_2.txt', 'wb') as f:
         for line in mat:
             np.savetxt(f, line, fmt='%.4f', delimiter='\t')
 
-# Lectura del dataset sintetico
+# Lectura del dataset sintético
 sds = pd.read_csv('TimeSerie_Real_Data.txt', sep='\t', header=None)
 sds = sds.to_numpy()
 
-# Semaforo para acceso a la consola
+# Semáforo para acceso a la consola
 console_lock = threading.Lock()
 
 # Lectura del modelo de aprendizaje profundo
@@ -96,7 +96,7 @@ text_labels = ['BUEN ESTADO', 'ESTADO CRITICO']
 # Creación del repositorio para intercambio de datos entre procesos (FIFO)
 q = queue.Queue()
 
-# Visualización de la estructura del modelo de aprendizaje profundo leido
+# Visualización de la estructura del modelo de aprendizaje profundo leído
 loaded_model.summary()
 
 # Creación de los procesos concurrentes

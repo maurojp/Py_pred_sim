@@ -9,7 +9,7 @@ from tensorflow.keras.models import model_from_json
 # Lista para guardar las predicciones
 history = []
 
-# Parametros de normalización para conjunto TS1-4_COOLER
+# Parámetros de normalización para conjunto TS1-4_COOLER
 T_C_0_num = 30.355
 T_C_0_den = 31.739
 
@@ -17,7 +17,7 @@ T_C_0_den = 31.739
 def normalize(x):
   return (x - T_C_0_num) / T_C_0_den
 
-# Logica del proceso Simulador
+# Lógica del proceso Simulador
 def simulator(thread_name, console_lock):
     for i in range(len(sds)):
         # Pausa de un segundo entre entregas de datos
@@ -29,7 +29,7 @@ def simulator(thread_name, console_lock):
             print("Lecturas enviadas: ", sds[i])
 
 
-# Logica del proceso predictor
+# Lógica del proceso predictor
 def predictor(thread_name, console_lock, loaded_model):
     pred_counter = 0
     serie = np.empty((1, 4))
@@ -38,14 +38,14 @@ def predictor(thread_name, console_lock, loaded_model):
             b = q.get()
             with console_lock:
                 print("Proceso Predictor - Proc.Nro. " + str(threading.get_ident()))
-                print("Prediccion Nro.: ", pred_counter, " - Datos Recibidos: ", b)
+                print("Predicción Nro.: ", pred_counter, " - Datos Recibidos: ", b)
                 print("Objetos restantes en la cola: " + str(q.qsize()))
                 # Preparado de la Serie
                 if pred_counter == 0:
                     serie = np.array([b])
                 else:
                     serie = np.append(serie, np.array([b]), axis=0)
-                # Grafica de la serie acumulada
+                # Gráfica de la serie acumulada
                 plt.plot(serie)
                 # Plot de la salida normalizada a la cota máxima de temperaturas para mejor visualización
                 plt.plot([h * 30 for h in history])
@@ -68,17 +68,17 @@ def predictor(thread_name, console_lock, loaded_model):
                 pred_counter += 1
         else:
             time.sleep(1)
-    # Guardo en archivo el resultado de las predicciones
+    # Guardado en archivo del resultado de las predicciones
     mat = np.matrix(history)
     with open('resultados_h_p_s_1.txt', 'wb') as f:
         for line in mat:
             np.savetxt(f, line, fmt='%.4f', delimiter='\t')
 
-# Lectura del dataset sintetico
+# Lectura del dataset sintético
 sds = pd.read_csv('SyntheticTimeSerie_1.txt', sep='\t', header=None)
 sds = sds.to_numpy()
 
-# Semaforo para acceso a la consola
+# Semáforo para acceso a la consola
 console_lock = threading.Lock()
 
 # Lectura del modelo de aprendizaje profundo
@@ -98,7 +98,7 @@ text_labels = ['ESTADO CRITICO', 'ESTADO MEDIO', 'EFICIENCIA TOTAL']
 # Creación del repositorio para intercambio de datos entre procesos (FIFO)
 q = queue.Queue()
 
-# Visualización de la estructura del modelo de aprendizaje profundo leido
+# Visualización de la estructura del modelo de aprendizaje profundo leído
 loaded_model.summary()
 
 # Creación de los procesos concurrentes
